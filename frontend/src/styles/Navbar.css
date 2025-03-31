@@ -11,7 +11,7 @@
 
 /* ====== Navbar Heading ====== */
 .navbar h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: bold;
   color: #ff0000; /* Red text */
   margin: 0;
@@ -60,7 +60,7 @@
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
-    align-items: center; /* Centered on smaller screens */
+    align-items: center;
     padding: 10px 20px;
   }
 
@@ -72,7 +72,7 @@
   .navbar div {
     flex-direction: column;
     align-items: center;
-    gap: 8px; /* Improved spacing */
+    gap: 10px; /* Better spacing for mobile */
   }
 
   .navbar a {
@@ -82,8 +82,9 @@
 
   .navbar button {
     font-size: 14px;
-    padding: 6px 12px;
+    padding: 8px 12px;
     margin: 5px 0;
+    width: 100%; /* Full-width on mobile for better UX */
   }
 }
 
@@ -93,12 +94,18 @@
   }
 
   .navbar a {
-    font-size: 12px;
+    font-size: 13px;
     margin: 3px 0;
   }
 
   .navbar button {
-    font-size: 12px;
-    padding: 5px 10px;
+    font-size: 13px;
+    padding: 7px 10px;
+    width: 100%; /* Full-width for easy tapping */
+  }
+
+  /* Improved navbar spacing and gap */
+  .navbar div {
+    gap: 6px;
   }
 }
