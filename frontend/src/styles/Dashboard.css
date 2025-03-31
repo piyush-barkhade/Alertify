@@ -1,0 +1,103 @@
+/* ====== General Dashboard Styling ====== */
+.dashboard {
+  background: #111; /* Dark background */
+  box-shadow: 0px 4px 10px rgba(255, 0, 0, 0.5);
+  text-align: center;
+  color: white;
+  height: 150vh;
+}
+
+/* ====== Heading Styling ====== */
+.dashboard h2 {
+  font-size: 24px;
+  color: #ff0000; /* Red text */
+  margin-bottom: 15px;
+}
+
+/* ====== Emergency Contacts Section ====== */
+.emergency-contacts {
+  margin-top: 20px;
+  padding: 15px;
+  background: #222; /* Darker section */
+  border-radius: 10px;
+  box-shadow: 0px 2px 10px rgba(255, 0, 0, 0.3);
+}
+
+.emergency-contacts h3 {
+  color: #ff0000; /* Red heading */
+  margin-bottom: 10px;
+}
+
+.emergency-contacts ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.emergency-contacts li {
+  font-size: 16px;
+  padding: 8px;
+  border-bottom: 1px solid #ff0000; /* Red divider */
+}
+
+.emergency-contacts li:last-child {
+  border-bottom: none;
+}
+
+/* ====== Alerts Sent Text ====== */
+.emergency-contacts p {
+  font-size: 18px;
+  color: #ff5555; /* Light red */
+  margin-top: 10px;
+}
+
+/* ====== SOS Button Styling ====== */
+.sos-button {
+  background: #ff0000; /* Red button */
+  color: white;
+  padding: 15px 20px;
+  font-size: 20px;
+  font-weight: bold;
+  width: 50vh;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.sos-button:hover {
+  background: #cc0000; /* Darker red */
+}
+
+.add-contact {
+  padding: 15px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  margin-top: 50px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.add-contact input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.add-contact button {
+  background: black;
+  color: white;
+  padding: 10px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.3s ease-in-out;
+}
+
+.add-contact button:hover {
+  background: red;
+}

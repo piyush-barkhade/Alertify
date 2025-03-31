@@ -1,0 +1,56 @@
+/* ====== Navbar Styling ====== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #111; /* Black background */
+  padding: 15px 30px;
+  box-shadow: 0px 4px 8px rgba(255, 0, 0, 0.3);
+  border-bottom: 2px solid #ff0000; /* Red border */
+}
+
+.navbar h1 {
+  font-size: 24px;
+  font-weight: bold;
+  color: #ff0000; /* Red text */
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* ====== Navbar Links ====== */
+.navbar div {
+  display: flex;
+  align-items: center;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-size: 16px;
+  margin: 0 15px;
+  font-weight: bold;
+  transition: color 0.3s ease-in-out;
+}
+
+.navbar a:hover {
+  color: #ff0000; /* Red on hover */
+}
+
+/* ====== Logout Button ====== */
+.navbar button {
+  background: #ff0000; /* Red button */
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  margin-left: 15px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.navbar button:hover {
+  background: #cc0000; /* Darker red */
+}
