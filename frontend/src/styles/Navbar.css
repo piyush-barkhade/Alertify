@@ -58,7 +58,7 @@
 /* Smaller mobile devices */
 @media (max-width: 480px) {
   .navbar h1 {
-    font-size: 18px;
+    font-size: 22px;
   }
 
   .navbar a {
