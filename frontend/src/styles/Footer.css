@@ -4,7 +4,6 @@
   color: white;
   text-align: center;
   padding: 20px 0;
-  margin-top: 2px;
   border-top: 2px solid #ff0000; /* Red border */
 }
 
@@ -30,6 +29,7 @@
 .footer-links {
   margin: 15px 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   gap: 20px;
 }
