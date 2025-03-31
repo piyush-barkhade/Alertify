@@ -103,38 +103,6 @@
 }
 
 /* ====== Responsive Design ====== */
-@media (max-width: 768px) {
-  .dashboard {
-    padding: 10px;
-    height: auto;
-  }
-
-  .dashboard h2 {
-    font-size: 20px;
-  }
-
-  .emergency-contacts li {
-    font-size: 14px;
-  }
-
-  .sos-button {
-    width: 80vw;
-    font-size: 18px;
-  }
-
-  .add-contact {
-    width: 90%;
-    margin: 30px auto;
-  }
-
-  .add-contact input {
-    font-size: 14px;
-  }
-
-  .add-contact button {
-    font-size: 14px;
-  }
-}
 
 @media (max-width: 480px) {
   .dashboard h2 {
