@@ -4,7 +4,7 @@
   justify-content: space-between;
   align-items: center;
   background-color: #111; /* Black background */
-  padding: 15px 30px;
+  padding: 12px 24px;
   box-shadow: 0px 4px 8px rgba(255, 0, 0, 0.3);
   border-bottom: 2px solid #ff0000; /* Red border */
 }
