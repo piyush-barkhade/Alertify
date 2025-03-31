@@ -69,5 +69,6 @@
   .navbar button {
     font-size: 12px;
     padding: 5px 10px;
+    margin: 6px 0;
   }
 }
