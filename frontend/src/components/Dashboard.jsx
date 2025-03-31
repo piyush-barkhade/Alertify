@@ -4,6 +4,7 @@ import Navbar from "./Navbar.jsx";
 import SOSButton from "./SOSButton.jsx";
 import { getUserDetails, addEmergencyContact } from "../services/api.js"; // ✅ Import API function
 import "../styles/Dashboard.css";
+import Footer from "./Footer.jsx";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -67,65 +68,68 @@ const Dashboard = () => {
   if (loading) return <p>Loading...</p>;
 
   return (
-    <div className="dashboard">
-      <Navbar />
-      <h2>Welcome, {user?.name}!</h2>
+    <>
+      <div className="dashboard">
+        <Navbar />
+        <h2>Welcome, {user?.name}!</h2>
 
-      <SOSButton user={user} />
+        <SOSButton user={user} />
 
-      {user?.emergencyContacts?.length > 0 ? (
-        <div className="emergency-contacts">
-          <h3>Emergency Contacts</h3>
-          <ul>
-            {user.emergencyContacts.map((contact, index) => (
-              <li key={index}>
-                {contact.name} - {contact.phone}
-              </li>
-            ))}
-          </ul>
-          <p>Total Alerts Sent: {user.alertsSent}</p>
-        </div>
-      ) : (
-        <p>No emergency contacts added.</p>
-      )}
-
-      {/* ===== Add Contact Section ===== */}
-      <div className="add-contact">
-        {!showForm ? (
-          <button onClick={() => setShowForm(true)}>➕ Add Contact</button> // ✅ Show button
+        {user?.emergencyContacts?.length > 0 ? (
+          <div className="emergency-contacts">
+            <h3>Emergency Contacts</h3>
+            <ul>
+              {user.emergencyContacts.map((contact, index) => (
+                <li key={index}>
+                  {contact.name} - {contact.phone}
+                </li>
+              ))}
+            </ul>
+            <p>Total Alerts Sent: {user.alertsSent}</p>
+          </div>
         ) : (
-          <>
-            <h3>Add Emergency Contact</h3>
-            {error && <p className="error">{error}</p>}
-            <form onSubmit={handleAddContact}>
-              <input
-                type="text"
-                placeholder="Contact Name"
-                value={contact.name}
-                onChange={(e) =>
-                  setContact({ ...contact, name: e.target.value })
-                }
-                required
-              />
-              <input
-                type="text"
-                placeholder="Phone (Numbers Only)"
-                value={contact.phone}
-                onChange={(e) =>
-                  setContact({ ...contact, phone: e.target.value })
-                }
-                required
-              />
-              <button type="submit">✅ Save Contact</button>
-              <button type="button" onClick={() => setShowForm(false)}>
-                ❌ Cancel
-              </button>{" "}
-              {/* ✅ Close form */}
-            </form>
-          </>
+          <p>No emergency contacts added.</p>
         )}
+
+        {/* ===== Add Contact Section ===== */}
+        <div className="add-contact">
+          {!showForm ? (
+            <button onClick={() => setShowForm(true)}>➕ Add Contact</button> // ✅ Show button
+          ) : (
+            <>
+              <h3>Add Emergency Contact</h3>
+              {error && <p className="error">{error}</p>}
+              <form onSubmit={handleAddContact}>
+                <input
+                  type="text"
+                  placeholder="Contact Name"
+                  value={contact.name}
+                  onChange={(e) =>
+                    setContact({ ...contact, name: e.target.value })
+                  }
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Phone (Numbers Only)"
+                  value={contact.phone}
+                  onChange={(e) =>
+                    setContact({ ...contact, phone: e.target.value })
+                  }
+                  required
+                />
+                <button type="submit">✅ Save Contact</button>
+                <button type="button" onClick={() => setShowForm(false)}>
+                  ❌ Cancel
+                </button>{" "}
+                {/* ✅ Close form */}
+              </form>
+            </>
+          )}
+        </div>
       </div>
-    </div>
+      <Footer />
+    </>
   );
 };
 
