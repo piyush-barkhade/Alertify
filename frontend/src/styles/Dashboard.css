@@ -5,6 +5,7 @@
   text-align: center;
   color: white;
   height: 150vh;
+  padding: 20px;
 }
 
 /* ====== Heading Styling ====== */
@@ -68,15 +69,14 @@
   background: #cc0000; /* Darker red */
 }
 
+/* ====== Add Contact Section ====== */
 .add-contact {
   padding: 15px;
   background: white;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
   max-width: 400px;
-  margin-top: 50px;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 50px auto;
 }
 
 .add-contact input {
@@ -100,4 +100,60 @@
 
 .add-contact button:hover {
   background: red;
+}
+
+/* ====== Responsive Design ====== */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 10px;
+    height: auto;
+  }
+
+  .dashboard h2 {
+    font-size: 20px;
+  }
+
+  .emergency-contacts li {
+    font-size: 14px;
+  }
+
+  .sos-button {
+    width: 80vw;
+    font-size: 18px;
+  }
+
+  .add-contact {
+    width: 90%;
+    margin: 30px auto;
+  }
+
+  .add-contact input {
+    font-size: 14px;
+  }
+
+  .add-contact button {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard h2 {
+    font-size: 18px;
+  }
+
+  .sos-button {
+    width: 90vw;
+    font-size: 16px;
+    padding: 12px;
+  }
+
+  .emergency-contacts li {
+    font-size: 12px;
+  }
+
+  .add-contact input,
+  .add-contact button {
+    font-size: 12px;
+    padding: 8px;
+  }
 }

@@ -1,10 +1,38 @@
+/* ====== Home Page Styling ====== */
 .home {
   background-color: black;
   color: white;
   height: 200vh;
   margin-top: auto;
+  padding: 20px;
+  text-align: center;
 }
 
+/* ====== Heading Styling ====== */
 .home h1 {
   margin-top: 25px;
+  font-size: 32px;
+  color: #ff0000; /* Red heading for better contrast */
+}
+
+/* ====== Responsive Design ====== */
+@media (max-width: 768px) {
+  .home {
+    height: auto;
+    padding: 15px;
+  }
+
+  .home h1 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home {
+    padding: 10px;
+  }
+
+  .home h1 {
+    font-size: 24px;
+  }
 }
