@@ -10,8 +10,8 @@ const Home = () => {
 
         <h1>Welcome to Alertify 🚨</h1>
         <p>Your safety, our priority.</p>
-        <Footer />
       </div>
+      <Footer />
     </>
   );
 };
