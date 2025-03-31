@@ -20,7 +20,7 @@ exports.sendSOS = async (req, res) => {
     const alert = new Alert({
       user: userId,
       location,
-      contactsNotified: false,
+      contactsNotified: true,
     });
     await alert.save();
 
