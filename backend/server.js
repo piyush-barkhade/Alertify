@@ -5,7 +5,14 @@ require("dotenv").config();
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+// ✅ Restrict CORS to Frontend URL
+app.use(
+  cors({
+    origin: "https://alertify-symf.onrender.com", // Frontend URL from environment variable
+    credentials: true, // Allow sending cookies and authorization headers
+  })
+);
 
 connectDB();
 
