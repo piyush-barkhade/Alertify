@@ -54,3 +54,50 @@
 .navbar button:hover {
   background: #cc0000; /* Darker red */
 }
+
+/* ====== Mobile View Styling ====== */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    align-items: center; /* Center elements on smaller screens */
+    padding: 10px 20px;
+  }
+
+  .navbar h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+
+  .navbar div {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .navbar a {
+    font-size: 14px;
+    margin: 8px 0;
+  }
+
+  .navbar button {
+    font-size: 14px;
+    padding: 6px 12px;
+    margin: 8px 0;
+  }
+}
+
+/* Smaller mobile devices */
+@media (max-width: 480px) {
+  .navbar h1 {
+    font-size: 18px;
+  }
+
+  .navbar a {
+    font-size: 12px;
+    margin: 6px 0;
+  }
+
+  .navbar button {
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+}
