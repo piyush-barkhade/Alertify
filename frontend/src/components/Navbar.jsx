@@ -20,7 +20,7 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <h1>AlerƟfy</h1>
+      <h1>Alertify</h1>
       <div>
         <Link to="/">Home</Link>
         {user ? (

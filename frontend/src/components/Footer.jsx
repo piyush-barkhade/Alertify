@@ -14,7 +14,7 @@ const Footer = () => {
           <a href="#">Contact</a>
         </div>
         <p className="footer-copyright">
-          &copy; 2025 AlerƟfy. All rights reserved.
+          &copy; 2025 Alertify. All rights reserved.
         </p>
       </div>
     </footer>
