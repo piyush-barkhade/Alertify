@@ -25,29 +25,39 @@ const SOSButton = ({ user: propUser }) => {
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        const sosData = {
-          userId: user._id, // Make sure this matches backend expectations
-          location: {
-            lat: coords.latitude,
-            lng: coords.longitude,
-          },
-        };
+    const handleSuccess = async ({ coords }) => {
+      const sosData = {
+        userId: user._id,
+        location: {
+          lat: coords.latitude.toFixed(6), // Accurate location data
+          lng: coords.longitude.toFixed(6), // Accurate location data
+          accuracy: coords.accuracy, // Include accuracy
+        },
+      };
 
-        try {
-          const response = await sendSOS(sosData);
-          alert("🚨 SOS Alert Sent!");
-          console.log("✅ SOS Response:", response.data);
-        } catch (error) {
-          console.error("❌ Error sending SOS:", error);
-          alert(error.response?.data?.message || "Failed to send SOS.");
-        }
-      },
-      (error) => {
-        alert(`❌ Location error: ${error.message}`);
+      try {
+        const response = await sendSOS(sosData);
+        alert("🚨 SOS Alert Sent!");
+        console.log("✅ SOS Response:", response.data);
+      } catch (error) {
+        console.error("❌ Error sending SOS:", error);
+        alert(error.response?.data?.message || "Failed to send SOS.");
       }
-    );
+    };
+
+    const handleError = (error) => {
+      alert(`❌ Location error: ${error.message}`);
+      console.error("❌ Location error:", error);
+    };
+
+    // Use `watchPosition` for real-time accuracy
+    const options = {
+      enableHighAccuracy: true, // Ensure high accuracy
+      timeout: 10000, // Max wait time for location
+      maximumAge: 0, // No caching of old positions
+    };
+
+    navigator.geolocation.watchPosition(handleSuccess, handleError, options);
   };
 
   return (
