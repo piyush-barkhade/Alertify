@@ -1,4 +1,5 @@
 const twilio = require("twilio");
+const User = require("../models/User.js"); // ✅ Import the User model
 require("dotenv").config();
 
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -61,7 +62,7 @@ const sendEmergencySMS = async (userId, location) => {
       }
 
       // Place emergency call to the contact
-      await makeEmergencyCall(phoneNumber, user.name, location); // Adding this line for the call functionality
+      await makeEmergencyCall(phoneNumber, user.name, location);
     }
   } catch (error) {
     console.error("❌ Error in sendEmergencySMS:", error.message);
