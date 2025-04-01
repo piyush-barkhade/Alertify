@@ -1,19 +1,24 @@
 const twilio = require("twilio");
-const User = require("../models/User.js");
 require("dotenv").config();
 
-// ✅ Ensure Twilio credentials are loaded
-const TWILIO_SID = process.env.TWILIO_SID;
-const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
-const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 
-if (!TWILIO_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
-  console.error("❌ Missing Twilio configuration");
-  process.exit(1);
-}
+// Function to make emergency call
+const makeEmergencyCall = async (phoneNumber, userName, location) => {
+  try {
+    const message = `🚨 Emergency! ${userName} needs help. Location: Latitude ${location.lat}, Longitude ${location.lng}`;
+    await client.calls.create({
+      to: phoneNumber,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      twiml: `<Response><Say>${message}</Say></Response>`,
+    });
+    console.log(`✅ Call made to ${phoneNumber}`);
+  } catch (error) {
+    console.error(`❌ Failed to make call to ${phoneNumber}:`, error.message);
+  }
+};
 
-const client = new twilio(TWILIO_SID, TWILIO_AUTH_TOKEN);
-
+// Function to send emergency SMS to all contacts
 const sendEmergencySMS = async (userId, location) => {
   try {
     const user = await User.findById(userId);
@@ -44,7 +49,7 @@ const sendEmergencySMS = async (userId, location) => {
       try {
         await client.messages.create({
           body: messageBody,
-          from: TWILIO_PHONE_NUMBER,
+          from: process.env.TWILIO_PHONE_NUMBER,
           to: phoneNumber,
         });
         console.log(`✅ SMS sent to ${phoneNumber} (${contact.name})`);
@@ -54,10 +59,13 @@ const sendEmergencySMS = async (userId, location) => {
           smsError.message
         );
       }
+
+      // Place emergency call to the contact
+      await makeEmergencyCall(phoneNumber, user.name, location); // Adding this line for the call functionality
     }
   } catch (error) {
     console.error("❌ Error in sendEmergencySMS:", error.message);
   }
 };
 
-module.exports = sendEmergencySMS;
+module.exports = { sendEmergencySMS, makeEmergencyCall };

@@ -1,6 +1,6 @@
 const Alert = require("../models/Alert.js");
 const User = require("../models/User.js");
-const sendEmergencySMS = require("../utils/twilio.js");
+const { sendEmergencySMS, makeEmergencyCall } = require("../utils/twilio.js");
 
 exports.sendSOS = async (req, res) => {
   try {
@@ -24,7 +24,7 @@ exports.sendSOS = async (req, res) => {
     });
     await alert.save();
 
-    // ✅ Send emergency SMS
+    // ✅ Send emergency SMS and make a call to all emergency contacts
     await sendEmergencySMS(userId, location);
 
     // ✅ Increment the alertsSent count
