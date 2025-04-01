@@ -17,3 +17,5 @@ export const sendSOS = (data) => API.post("/sos", data);
 export const getUserDetails = () => API.get("/auth/me");
 export const addEmergencyContact = (userId, contact) =>
   API.post("/auth/add-contact", { userId, contact }); // ✅ Ensure correct request structure
+export const deleteEmergencyContact = (userId, contactId) =>
+  API.post("/auth/delete-contact", { userId, contactId });

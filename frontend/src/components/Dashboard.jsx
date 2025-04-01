@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar.jsx";
 import SOSButton from "./SOSButton.jsx";
-import { getUserDetails, addEmergencyContact } from "../services/api.js"; // ✅ Import API function
+import {
+  getUserDetails,
+  addEmergencyContact,
+  deleteEmergencyContact,
+} from "../services/api.js"; // ✅ Import API functions
 import "../styles/Dashboard.css";
 import Footer from "./Footer.jsx";
 
@@ -30,6 +34,7 @@ const Dashboard = () => {
     fetchUser();
   }, [navigate]);
 
+  // ✅ Handle adding a contact
   const handleAddContact = async (e) => {
     e.preventDefault();
     setError(null);
@@ -55,13 +60,27 @@ const Dashboard = () => {
         ...prevUser,
         emergencyContacts: response.data.emergencyContacts,
       }));
-
       setContact({ name: "", phone: "" });
-      setShowForm(false); // ✅ Hide form after successful addition
+      setShowForm(false);
       alert("✅ Contact added successfully!");
     } catch (error) {
       console.error("❌ Error adding contact:", error);
       setError(error.response?.data?.message || "Failed to add contact.");
+    }
+  };
+
+  // ✅ Handle deleting a contact
+  const handleDeleteContact = async (contactId) => {
+    try {
+      const response = await deleteEmergencyContact(user._id, contactId);
+      setUser((prevUser) => ({
+        ...prevUser,
+        emergencyContacts: response.data.emergencyContacts,
+      }));
+      alert("✅ Contact deleted successfully!");
+    } catch (error) {
+      console.error("❌ Error deleting contact:", error);
+      alert(error.response?.data?.message || "Failed to delete contact.");
     }
   };
 
@@ -79,9 +98,15 @@ const Dashboard = () => {
           <div className="emergency-contacts">
             <h3>Emergency Contacts</h3>
             <ul>
-              {user.emergencyContacts.map((contact, index) => (
-                <li key={index}>
+              {user.emergencyContacts.map((contact) => (
+                <li key={contact._id}>
                   {contact.name} - {contact.phone}
+                  <button
+                    className="delete-btn"
+                    onClick={() => handleDeleteContact(contact._id)}
+                  >
+                    ❌ Delete
+                  </button>
                 </li>
               ))}
             </ul>
@@ -94,7 +119,7 @@ const Dashboard = () => {
         {/* ===== Add Contact Section ===== */}
         <div className="add-contact">
           {!showForm ? (
-            <button onClick={() => setShowForm(true)}>➕ Add Contact</button> // ✅ Show button
+            <button onClick={() => setShowForm(true)}>➕ Add Contact</button>
           ) : (
             <>
               <h3>Add Emergency Contact</h3>
@@ -121,8 +146,7 @@ const Dashboard = () => {
                 <button type="submit">✅ Save Contact</button>
                 <button type="button" onClick={() => setShowForm(false)}>
                   ❌ Cancel
-                </button>{" "}
-                {/* ✅ Close form */}
+                </button>
               </form>
             </>
           )}

@@ -121,3 +121,36 @@ exports.addContact = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// ✅ Delete Emergency Contact
+exports.deleteContact = async (req, res) => {
+  try {
+    const { userId, contactId } = req.body;
+
+    if (!userId || !contactId) {
+      return res
+        .status(400)
+        .json({ message: "User ID and Contact ID are required" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Remove contact by ID
+    user.emergencyContacts = user.emergencyContacts.filter(
+      (contact) => contact._id.toString() !== contactId
+    );
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Contact deleted successfully",
+      emergencyContacts: user.emergencyContacts,
+    });
+  } catch (error) {
+    console.error("❌ Delete Contact Error:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
