@@ -55,6 +55,19 @@ const Dashboard = () => {
     }
 
     try {
+      function showContactSuccessModal() {
+        const modal = document.createElement("div");
+        modal.innerHTML = `
+          <div style="position:fixed; top:30%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:20px 30px; box-shadow:0 4px 20px rgba(0,0,0,0.2); border-radius:8px; z-index:1000; font-family:sans-serif;">
+            <h3 style="margin:0 0 10px;">✅ Contact Added Successfully!</h3>
+            <p style="margin:0 0 10px;">Now verify the caller ID on Twilio:</p>
+            <a href="https://www.twilio.com/console/phone-numbers/verified" target="_blank" style="color:#007aff;">Go to Twilio Verified Caller IDs</a><br><br>
+            <button onclick="this.parentElement.remove()" style="margin-top:10px; padding:6px 12px; background:#007aff; color:#fff; border:none; border-radius:4px;">Close</button>
+          </div>
+        `;
+        document.body.appendChild(modal);
+      }
+
       const response = await addEmergencyContact(user._id, contact);
       setUser((prevUser) => ({
         ...prevUser,
@@ -62,9 +75,7 @@ const Dashboard = () => {
       }));
       setContact({ name: "", phone: "" });
       setShowForm(false);
-      alert(
-        "✅ Contact added successfully! Now verify the caller id on Twilio 'https://www.twilio.com/console/phone-numbers/verified'"
-      );
+      showContactSuccessModal();
     } catch (error) {
       console.error("❌ Error adding contact:", error);
       setError(error.response?.data?.message || "Failed to add contact.");
