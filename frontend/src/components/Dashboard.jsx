@@ -2,14 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar.jsx";
 import SOSButton from "./SOSButton.jsx";
-import Footer from "./Footer.jsx";
 import {
   getUserDetails,
   addEmergencyContact,
   deleteEmergencyContact,
-  verifyEmergencyContact,
-} from "../services/api.js";
+} from "../services/api.js"; // ✅ Import API functions
 import "../styles/Dashboard.css";
+import Footer from "./Footer.jsx";
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -17,10 +16,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [contact, setContact] = useState({ name: "", phone: "" });
   const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [selectedPhone, setSelectedPhone] = useState(null);
-  const [verifying, setVerifying] = useState(false);
+  const [showForm, setShowForm] = useState(false); // ✅ Controls form visibility
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -38,6 +34,7 @@ const Dashboard = () => {
     fetchUser();
   }, [navigate]);
 
+  // ✅ Handle adding a contact
   const handleAddContact = async (e) => {
     e.preventDefault();
     setError(null);
@@ -52,47 +49,27 @@ const Dashboard = () => {
       return;
     }
 
+    if (!user?._id) {
+      setError("User ID is missing. Please log in again.");
+      return;
+    }
+
     try {
       const response = await addEmergencyContact(user._id, contact);
       setUser((prevUser) => ({
         ...prevUser,
         emergencyContacts: response.data.emergencyContacts,
       }));
-      setSelectedPhone(contact.phone);
-      setVerifying(true);
-      alert("✅ Contact added. Please verify using OTP sent to the number.");
       setContact({ name: "", phone: "" });
       setShowForm(false);
+      alert("✅ Contact added successfully!");
     } catch (error) {
       console.error("❌ Error adding contact:", error);
       setError(error.response?.data?.message || "Failed to add contact.");
     }
   };
 
-  const handleVerifyOTP = async (e) => {
-    e.preventDefault();
-    if (!otp) return alert("Please enter the OTP.");
-    try {
-      const res = await verifyEmergencyContact(user._id, selectedPhone, otp);
-      alert("✅ Contact verified successfully!");
-      setUser((prevUser) => ({
-        ...prevUser,
-        emergencyContacts: res.data.contact
-          ? prevUser.emergencyContacts.map((c) =>
-              c.phone === res.data.contact.phone ? res.data.contact : c
-            )
-          : prevUser.emergencyContacts,
-      }));
-      setVerifying(false);
-      setOtp("");
-      setSelectedPhone(null);
-    } catch (err) {
-      alert(
-        err.response?.data?.message || "❌ OTP verification failed. Try again."
-      );
-    }
-  };
-
+  // ✅ Handle deleting a contact
   const handleDeleteContact = async (contactId) => {
     try {
       const response = await deleteEmergencyContact(user._id, contactId);
@@ -123,8 +100,7 @@ const Dashboard = () => {
             <ul>
               {user.emergencyContacts.map((contact) => (
                 <li key={contact._id}>
-                  {contact.name} - {contact.phone}{" "}
-                  {contact.verified ? "✅ Verified" : "❌ Not Verified"}
+                  {contact.name} - {contact.phone}
                   <button
                     className="delete-btn"
                     onClick={() => handleDeleteContact(contact._id)}
@@ -140,6 +116,7 @@ const Dashboard = () => {
           <p>No emergency contacts added.</p>
         )}
 
+        {/* ===== Add Contact Section ===== */}
         <div className="add-contact">
           {!showForm ? (
             <button onClick={() => setShowForm(true)}>➕ Add Contact</button>
@@ -174,22 +151,6 @@ const Dashboard = () => {
             </>
           )}
         </div>
-
-        {verifying && (
-          <div className="otp-verification">
-            <h4>Enter OTP sent to {selectedPhone}</h4>
-            <form onSubmit={handleVerifyOTP}>
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-              />
-              <button type="submit">✅ Verify</button>
-            </form>
-          </div>
-        )}
       </div>
       <Footer />
     </>
