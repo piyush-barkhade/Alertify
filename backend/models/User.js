@@ -1,17 +1,20 @@
 const mongoose = require("mongoose");
 
-const UserSchema = new mongoose.Schema({
+const emergencyContactSchema = new mongoose.Schema({
   name: String,
-  email: { type: String, unique: true },
-  password: String,
-  emergencyContacts: [
-    {
-      name: String,
-      phone: String,
-      verified: { type: Boolean, default: false },
-    },
-  ],
-  alertsSent: { type: Number, default: 0 }, // ✅ Track number of SOS alerts sent
+  phone: String,
+  verified: { type: Boolean, default: false },
 });
 
-module.exports = mongoose.model("User", UserSchema);
+const userSchema = new mongoose.Schema(
+  {
+    name: String,
+    email: { type: String, unique: true },
+    password: String,
+    emergencyContacts: [emergencyContactSchema],
+    alertsSent: { type: Number, default: 0 },
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("User", userSchema);

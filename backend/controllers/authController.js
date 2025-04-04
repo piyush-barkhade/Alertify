@@ -9,30 +9,24 @@ const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 // REGISTER
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, emergencyContacts } = req.body;
-
+    const { name, email, password } = req.body;
     const existingUser = await User.findOne({ email: email.toLowerCase() });
+
     if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User already exists. Please log in." });
+      return res.status(400).json({ message: "User already exists." });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const formattedContacts = Array.isArray(emergencyContacts)
-      ? emergencyContacts
-      : [];
-
     const user = new User({
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
-      emergencyContacts: formattedContacts,
+      emergencyContacts: [],
       alertsSent: 0,
     });
 
     await user.save();
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "User registered successfully." });
   } catch (error) {
     res
       .status(500)
@@ -46,14 +40,7 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email.toLowerCase() });
 
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "User not found. Please register first." });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
@@ -76,52 +63,40 @@ exports.login = async (req, res) => {
   }
 };
 
-// GET USER
+// GET USER DETAILS
 exports.getUserDetails = async (req, res) => {
   try {
     const user = await User.findById(req.user.userId).select("-password");
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
     res.json(user);
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching user", error: error.message });
   }
 };
 
-// ADD CONTACT
+// ADD CONTACT & SEND OTP
 exports.addContact = async (req, res) => {
   try {
     const { userId, contact } = req.body;
 
-    if (!userId || !contact?.name || !contact?.phone) {
-      return res
-        .status(400)
-        .json({ message: "User ID, name, and phone are required" });
-    }
-
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const phoneNumber = contact.phone.startsWith("+91")
+    const phone = contact.phone.startsWith("+91")
       ? contact.phone
-      : `+91${contact.phone.replace(/\D/g, "")}`;
+      : `+91${contact.phone}`;
 
-    // Send OTP via Twilio
-    try {
-      await client.verify.v2
-        .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-        .verifications.create({ to: phoneNumber, channel: "sms" });
-
-      console.log(`✅ OTP sent to ${phoneNumber}`);
-    } catch (err) {
-      console.warn(`⚠️ Twilio Error:`, err.message);
-    }
+    // Send OTP
+    await client.verify.v2
+      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      .verifications.create({ to: phone, channel: "sms" });
 
     const newContact = {
       name: contact.name,
-      phone: phoneNumber,
-      verified: false, // Flag to verify later
+      phone,
+      verified: false,
     };
 
     user.emergencyContacts.push(newContact);
@@ -138,20 +113,11 @@ exports.addContact = async (req, res) => {
   }
 };
 
-// VERIFY CONTACT
+// VERIFY OTP
 exports.verifyContact = async (req, res) => {
   try {
     const { userId, phone, code } = req.body;
-
-    if (!userId || !phone || !code) {
-      return res
-        .status(400)
-        .json({ message: "User ID, phone, and code required" });
-    }
-
-    const phoneNumber = phone.startsWith("+91")
-      ? phone
-      : `+91${phone.replace(/\D/g, "")}`;
+    const phoneNumber = phone.startsWith("+91") ? phone : `+91${phone}`;
 
     const verificationCheck = await client.verify.v2
       .services(process.env.TWILIO_VERIFY_SERVICE_SID)
@@ -171,8 +137,8 @@ exports.verifyContact = async (req, res) => {
     await user.save();
 
     res.status(200).json({
-      message: "Phone number verified successfully",
-      contact,
+      message: "Contact verified successfully",
+      emergencyContacts: user.emergencyContacts,
     });
   } catch (error) {
     res
@@ -185,13 +151,6 @@ exports.verifyContact = async (req, res) => {
 exports.deleteContact = async (req, res) => {
   try {
     const { userId, contactId } = req.body;
-
-    if (!userId || !contactId) {
-      return res
-        .status(400)
-        .json({ message: "User ID and Contact ID are required" });
-    }
-
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
@@ -200,12 +159,13 @@ exports.deleteContact = async (req, res) => {
     );
 
     await user.save();
-
     res.status(200).json({
       message: "Contact deleted successfully",
       emergencyContacts: user.emergencyContacts,
     });
   } catch (error) {
-    res.status(500).json({ message: "Delete failed", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Delete contact failed", error: error.message });
   }
 };
