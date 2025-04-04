@@ -1,11 +1,6 @@
 const User = require("../models/User.js");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const twilio = require("twilio");
-require("dotenv").config();
-
-const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
-const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
 
 exports.register = async (req, res) => {
   try {
@@ -100,10 +95,10 @@ exports.getUserDetails = async (req, res) => {
   }
 };
 
-// ✅ Add Emergency Contact with Auto Verification + Save to Twilio
+// ✅ Add Emergency Contact (Fixes DB Update Issue)
 exports.addContact = async (req, res) => {
   try {
-    const { userId, contact } = req.body;
+    const { userId, contact } = req.body; // ✅ Ensure correct extraction
 
     if (!userId || !contact || !contact.name || !contact.phone) {
       return res
@@ -114,41 +109,15 @@ exports.addContact = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // ✅ Format phone number to E.164
-    const phoneNumber = contact.phone.startsWith("+91")
-      ? contact.phone
-      : `+91${contact.phone.replace(/\D/g, "")}`;
-
-    // ✅ Save to Twilio (add as verified)
-    await client.verify.v2.services(verifyServiceSid).verifications.create({
-      to: phoneNumber,
-      channel: "sms",
-    });
-
-    // ✅ Simulate a successful OTP check (automatic verification)
-    await client.verify.v2
-      .services(verifyServiceSid)
-      .verificationChecks.create({
-        to: phoneNumber,
-        code: "000000", // Trick to simulate success in internal flow (for trusted users only)
-      });
-
-    // ✅ Add to user's emergencyContacts
-    const newContact = {
-      name: contact.name,
-      phone: phoneNumber,
-      verified: true,
-    };
-
-    user.emergencyContacts.push(newContact);
+    user.emergencyContacts.push(contact);
     await user.save();
 
     res.status(200).json({
-      message: "Contact added, auto-verified, and saved to Twilio successfully",
-      emergencyContacts: user.emergencyContacts,
+      message: "Contact added successfully",
+      emergencyContacts: user.emergencyContacts, // ✅ Return updated list
     });
   } catch (error) {
-    console.error("❌ Auto Verify and Save to Twilio Error:", error.message);
+    console.error("❌ Add Contact Error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
