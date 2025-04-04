@@ -113,7 +113,8 @@ exports.addContact = async (req, res) => {
     await user.save();
 
     res.status(200).json({
-      message: "Contact added successfully",
+      message:
+        "Contact added successfully. Now verify the caller id on Twilio 'https://www.twilio.com/console/phone-numbers/verified'",
       emergencyContacts: user.emergencyContacts, // ✅ Return updated list
     });
   } catch (error) {
