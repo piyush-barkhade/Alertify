@@ -62,7 +62,9 @@ const Dashboard = () => {
       }));
       setContact({ name: "", phone: "" });
       setShowForm(false);
-      alert("✅ Contact added successfully!");
+      alert(
+        "✅ Contact added successfully! Now verify the caller id on Twilio 'https://www.twilio.com/console/phone-numbers/verified'"
+      );
     } catch (error) {
       console.error("❌ Error adding contact:", error);
       setError(error.response?.data?.message || "Failed to add contact.");
