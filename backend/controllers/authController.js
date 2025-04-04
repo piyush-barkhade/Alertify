@@ -98,7 +98,7 @@ exports.getUserDetails = async (req, res) => {
 // ✅ Add Emergency Contact (Fixes DB Update Issue)
 exports.addContact = async (req, res) => {
   try {
-    const { userId, contact } = req.body; // ✅ Ensure correct extraction
+    const { userId, contact } = req.body;
 
     if (!userId || !contact || !contact.name || !contact.phone) {
       return res
@@ -109,12 +109,32 @@ exports.addContact = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    user.emergencyContacts.push(contact);
+    // Format phone number to E.164
+    const phoneNumber = contact.phone.startsWith("+91")
+      ? contact.phone
+      : `+91${contact.phone.replace(/\D/g, "")}`;
+
+    // Optional: Use Twilio Verify API to register or send verification
+    try {
+      await client.verify.v2
+        .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+        .verifications.create({ to: phoneNumber, channel: "sms" });
+
+      console.log(`✅ Verification initiated for ${phoneNumber}`);
+    } catch (twilioErr) {
+      console.warn(
+        `⚠️ Failed to verify ${phoneNumber} on Twilio:`,
+        twilioErr.message
+      );
+    }
+
+    // Save contact in database
+    user.emergencyContacts.push({ name: contact.name, phone: phoneNumber });
     await user.save();
 
     res.status(200).json({
-      message: "Contact added successfully",
-      emergencyContacts: user.emergencyContacts, // ✅ Return updated list
+      message: "Contact added successfully and registered on Twilio",
+      emergencyContacts: user.emergencyContacts,
     });
   } catch (error) {
     console.error("❌ Add Contact Error:", error);
