@@ -6,11 +6,11 @@ require("dotenv").config();
 
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 
+// REGISTER
 exports.register = async (req, res) => {
   try {
     const { name, email, password, emergencyContacts } = req.body;
 
-    // Check if the user already exists
     const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res
@@ -18,20 +18,17 @@ exports.register = async (req, res) => {
         .json({ message: "User already exists. Please log in." });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Ensure emergencyContacts is an array
     const formattedContacts = Array.isArray(emergencyContacts)
       ? emergencyContacts
       : [];
 
     const user = new User({
       name,
-      email: email.toLowerCase(), // Normalize email
+      email: email.toLowerCase(),
       password: hashedPassword,
       emergencyContacts: formattedContacts,
-      alertsSent: 0, // ✅ New users start with 0 alerts sent
+      alertsSent: 0,
     });
 
     await user.save();
@@ -42,6 +39,8 @@ exports.register = async (req, res) => {
       .json({ message: "Registration failed", error: error.message });
   }
 };
+
+// LOGIN
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -62,11 +61,6 @@ exports.login = async (req, res) => {
       expiresIn: "7d",
     });
 
-    console.log("✅ Login Success:");
-    console.log("Token:", token);
-    console.log("User ID:", user._id);
-    console.log("Email:", user.email);
-
     res.json({
       token,
       user: {
@@ -74,37 +68,33 @@ exports.login = async (req, res) => {
         name: user.name,
         email: user.email,
         emergencyContacts: user.emergencyContacts,
-        alertsSent: user.alertsSent, // ✅ Include number of alerts sent
+        alertsSent: user.alertsSent,
       },
     });
   } catch (error) {
-    console.error("❌ Login Error:", error.message);
     res.status(500).json({ message: "Login failed", error: error.message });
   }
 };
 
+// GET USER
 exports.getUserDetails = async (req, res) => {
   try {
-    // ✅ Fetch user from the database (excluding password)
     const user = await User.findById(req.user.userId).select("-password");
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
     res.json(user);
   } catch (error) {
-    console.error("❌ Error fetching user details:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
-// ✅ Add Emergency Contact (Fixes DB Update Issue)
+// ADD CONTACT
 exports.addContact = async (req, res) => {
   try {
     const { userId, contact } = req.body;
 
-    if (!userId || !contact || !contact.name || !contact.phone) {
+    if (!userId || !contact?.name || !contact?.phone) {
       return res
         .status(400)
         .json({ message: "User ID, name, and phone are required" });
@@ -113,40 +103,85 @@ exports.addContact = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Format phone number to E.164
     const phoneNumber = contact.phone.startsWith("+91")
       ? contact.phone
       : `+91${contact.phone.replace(/\D/g, "")}`;
 
-    // Optional: Use Twilio Verify API to register or send verification
+    // Send OTP via Twilio
     try {
       await client.verify.v2
         .services(process.env.TWILIO_VERIFY_SERVICE_SID)
         .verifications.create({ to: phoneNumber, channel: "sms" });
 
-      console.log(`✅ Verification initiated for ${phoneNumber}`);
-    } catch (twilioErr) {
-      console.warn(
-        `⚠️ Failed to verify ${phoneNumber} on Twilio:`,
-        twilioErr.message
-      );
+      console.log(`✅ OTP sent to ${phoneNumber}`);
+    } catch (err) {
+      console.warn(`⚠️ Twilio Error:`, err.message);
     }
 
-    // Save contact in database
-    user.emergencyContacts.push({ name: contact.name, phone: phoneNumber });
+    const newContact = {
+      name: contact.name,
+      phone: phoneNumber,
+      verified: false, // Flag to verify later
+    };
+
+    user.emergencyContacts.push(newContact);
     await user.save();
 
     res.status(200).json({
-      message: "Contact added successfully and registered on Twilio",
+      message: "Contact added. Verification code sent via SMS.",
       emergencyContacts: user.emergencyContacts,
     });
   } catch (error) {
-    console.error("❌ Add Contact Error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Add contact failed", error: error.message });
   }
 };
 
-// ✅ Delete Emergency Contact
+// VERIFY CONTACT
+exports.verifyContact = async (req, res) => {
+  try {
+    const { userId, phone, code } = req.body;
+
+    if (!userId || !phone || !code) {
+      return res
+        .status(400)
+        .json({ message: "User ID, phone, and code required" });
+    }
+
+    const phoneNumber = phone.startsWith("+91")
+      ? phone
+      : `+91${phone.replace(/\D/g, "")}`;
+
+    const verificationCheck = await client.verify.v2
+      .services(process.env.TWILIO_VERIFY_SERVICE_SID)
+      .verificationChecks.create({ to: phoneNumber, code });
+
+    if (verificationCheck.status !== "approved") {
+      return res.status(400).json({ message: "Invalid verification code" });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const contact = user.emergencyContacts.find((c) => c.phone === phoneNumber);
+    if (!contact) return res.status(404).json({ message: "Contact not found" });
+
+    contact.verified = true;
+    await user.save();
+
+    res.status(200).json({
+      message: "Phone number verified successfully",
+      contact,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Verification failed", error: error.message });
+  }
+};
+
+// DELETE CONTACT
 exports.deleteContact = async (req, res) => {
   try {
     const { userId, contactId } = req.body;
@@ -158,11 +193,8 @@ exports.deleteContact = async (req, res) => {
     }
 
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Remove contact by ID
     user.emergencyContacts = user.emergencyContacts.filter(
       (contact) => contact._id.toString() !== contactId
     );
@@ -174,7 +206,6 @@ exports.deleteContact = async (req, res) => {
       emergencyContacts: user.emergencyContacts,
     });
   } catch (error) {
-    console.error("❌ Delete Contact Error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ message: "Delete failed", error: error.message });
   }
 };

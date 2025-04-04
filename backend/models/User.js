@@ -4,7 +4,13 @@ const UserSchema = new mongoose.Schema({
   name: String,
   email: { type: String, unique: true },
   password: String,
-  emergencyContacts: [{ name: String, phone: String }],
+  emergencyContacts: [
+    {
+      name: String,
+      phone: String,
+      verified: { type: Boolean, default: false },
+    },
+  ],
   alertsSent: { type: Number, default: 0 }, // ✅ Track number of SOS alerts sent
 });
 
