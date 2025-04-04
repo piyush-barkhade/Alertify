@@ -58,7 +58,7 @@ const Dashboard = () => {
       function showContactSuccessModal() {
         const modal = document.createElement("div");
         modal.innerHTML = `
-          <div style="position:fixed; top:30%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:20px 30px; box-shadow:0 4px 20px rgba(0,0,0,0.2); border-radius:8px; z-index:1000; font-family:sans-serif;">
+          <div style="position:fixed; top:10%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:20px 30px; box-shadow:0 4px 20px rgba(0,0,0,0.2); border-radius:8px; z-index:1000; font-family:sans-serif;">
             <h3 style="margin:0 0 10px;">✅ Contact Added Successfully!</h3>
             <p style="margin:0 0 10px;">Now verify the caller ID on Twilio:</p>
             <a href="https://www.twilio.com/console/phone-numbers/verified" target="_blank" style="color:#007aff;">Go to Twilio Verified Caller IDs</a><br><br>
@@ -85,12 +85,27 @@ const Dashboard = () => {
   // ✅ Handle deleting a contact
   const handleDeleteContact = async (contactId) => {
     try {
+      // ✅ Custom Modal for Delete
+      function showContactDeletedModal() {
+        const modal = document.createElement("div");
+        modal.innerHTML = `
+    <div style="position:fixed; top:30%; left:50%; transform:translate(-50%, -50%); background:#fff; padding:20px 30px; box-shadow:0 4px 20px rgba(0,0,0,0.2); border-radius:8px; z-index:1000; font-family:sans-serif;">
+      <h3 style="margin:0 0 10px;">🗑️ Contact Deleted Successfully!</h3>
+      <p style="margin:0 0 10px;">The contact has been removed from your emergency list.</p>
+      <button id="closeDeleteModalBtn" style="margin-top:10px; padding:6px 12px; background:#d9534f; color:#fff; border:none; border-radius:4px;">Close</button>
+    </div>
+  `;
+        document.body.appendChild(modal);
+        modal.querySelector("#closeDeleteModalBtn").onclick = () =>
+          modal.remove();
+      }
+
       const response = await deleteEmergencyContact(user._id, contactId);
       setUser((prevUser) => ({
         ...prevUser,
         emergencyContacts: response.data.emergencyContacts,
       }));
-      alert("✅ Contact deleted successfully!");
+      showContactDeletedModal();
     } catch (error) {
       console.error("❌ Error deleting contact:", error);
       alert(error.response?.data?.message || "Failed to delete contact.");
